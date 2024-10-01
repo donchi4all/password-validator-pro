@@ -1,6 +1,4 @@
 
-import PasswordValidator from "./validator";
-
 /**
  * @module PasswordValidator
  * 
@@ -45,4 +43,4 @@ import PasswordValidator from "./validator";
  * ```
  */
 
-export default PasswordValidator;
+export { default as PasswordValidator } from './validator'; // Adjust if needed based on your file structure

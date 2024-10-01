@@ -1,7 +1,7 @@
 interface ErrorInterface {
-    status: number;
-    code: string;
-    message: string;
+    status: number; // HTTP status code
+    code: string; // Error code
+    message: string; // Error message
 }
 
 type ErrorMessages = {
@@ -20,7 +20,7 @@ class PasswordValidator {
     private requireLowercase: boolean;
     private requireNumbers: boolean;
     private requireSpecialChars: boolean;
-    private customRules: { [key: string]: (password: string) => boolean } = {};
+    private customRules: { [key: string]: { validate: (password: string) => boolean; message: string } } = {};
     private errorMessages: ErrorMessages;
 
     constructor(options: {
@@ -48,52 +48,70 @@ class PasswordValidator {
     }
 
     addCustomRule(rule: { code: string; message: string; validate: (password: string) => boolean }) {
-        this.customRules[rule.code] = rule.validate;
+        this.customRules[rule.code] = {
+            validate: rule.validate,
+            message: rule.message,
+        };
     }
 
-    validate(password: string) {
-        const errors: string[] = [];
-        let valid = true;
+    validate(password: string): { valid: boolean; errors: ErrorInterface[] } {
+        const errors: ErrorInterface[] = [];
+        const status = 400; // HTTP status code for bad requests
+        const errorCodes: string[] = []; // To collect error codes
+        const errorMessages: string[] = []; // To collect error messages
 
+        // Check built-in rules
         if (password.length < this.minLength) {
-            errors.push(this.errorMessages.PASSWORD_TOO_SHORT(this.minLength));
-            valid = false;
+            errorCodes.push('PASSWORD_TOO_SHORT');
+            errorMessages.push(this.errorMessages.PASSWORD_TOO_SHORT(this.minLength));
         }
 
         if (password.length > this.maxLength) {
-            errors.push(this.errorMessages.PASSWORD_TOO_LONG(this.maxLength));
-            valid = false;
+            errorCodes.push('PASSWORD_TOO_LONG');
+            errorMessages.push(this.errorMessages.PASSWORD_TOO_LONG(this.maxLength));
         }
 
         if (this.requireUppercase && !/[A-Z]/.test(password)) {
-            errors.push(this.errorMessages.NO_UPPERCASE);
-            valid = false;
+            errorCodes.push('NO_UPPERCASE');
+            errorMessages.push(this.errorMessages.NO_UPPERCASE);
         }
 
         if (this.requireLowercase && !/[a-z]/.test(password)) {
-            errors.push(this.errorMessages.NO_LOWERCASE);
-            valid = false;
+            errorCodes.push('NO_LOWERCASE');
+            errorMessages.push(this.errorMessages.NO_LOWERCASE);
         }
 
         if (this.requireNumbers && !/[0-9]/.test(password)) {
-            errors.push(this.errorMessages.NO_NUMBERS);
-            valid = false;
+            errorCodes.push('NO_NUMBERS');
+            errorMessages.push(this.errorMessages.NO_NUMBERS);
         }
 
         if (this.requireSpecialChars && !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
-            errors.push(this.errorMessages.NO_SPECIAL_CHARS);
-            valid = false;
+            errorCodes.push('NO_SPECIAL_CHARS');
+            errorMessages.push(this.errorMessages.NO_SPECIAL_CHARS);
         }
 
         // Check custom rules
         for (const code in this.customRules) {
-            if (!this.customRules[code](password)) {
-                errors.push(code); // Using the code as the error message for simplicity
-                valid = false;
+            const rule = this.customRules[code];
+            if (!rule.validate(password)) {
+                errorCodes.push(code);
+                errorMessages.push(rule.message); // Use the custom rule message
             }
         }
 
-        return { valid, errors };
+        // Prepare final error object if there are errors
+        if (errorCodes.length > 0) {
+            const concatenatedCodes = errorCodes.join(' | ');
+            const concatenatedMessages = errorMessages.join(', ');
+            errors.push({
+                status,
+                code: concatenatedCodes,
+                message: concatenatedMessages,
+            });
+        }
+
+        return { valid: errors.length === 0, errors };
     }
 }
 
