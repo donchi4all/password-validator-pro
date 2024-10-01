@@ -1,6 +1,6 @@
 {
   "name": "password-validator-pro",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A highly customizable password validator for JavaScript and TypeScript. Ensures password strength with support for custom validation rules.",
   "main": "donsoft/index.js",
   "types": "donsoft/index.d.ts",
