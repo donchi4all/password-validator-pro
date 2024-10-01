@@ -43,4 +43,8 @@
  * ```
  */
 
-export { default as PasswordValidator } from './validator'; // Adjust if needed based on your file structure
+// src/index.ts
+import PasswordValidator from './validator';
+import { ErrorInterface, ErrorMessages, ValidatorOptions } from './types';
+
+export { PasswordValidator, ErrorInterface, ErrorMessages, ValidatorOptions };

@@ -1,17 +1,4 @@
-interface ErrorInterface {
-    status: number; // HTTP status code
-    code: string; // Error code
-    message: string; // Error message
-}
-
-type ErrorMessages = {
-    PASSWORD_TOO_SHORT: (minLength: number) => string;
-    PASSWORD_TOO_LONG: (maxLength: number) => string;
-    NO_UPPERCASE: string;
-    NO_LOWERCASE: string;
-    NO_NUMBERS: string;
-    NO_SPECIAL_CHARS: string;
-};
+import { ErrorInterface, ErrorMessages, ValidatorOptions } from "../types";
 
 class PasswordValidator {
     private minLength: number;
@@ -23,14 +10,7 @@ class PasswordValidator {
     private customRules: { [key: string]: { validate: (password: string) => boolean; message: string } } = {};
     private errorMessages: ErrorMessages;
 
-    constructor(options: {
-        minLength?: number;
-        maxLength?: number;
-        requireUppercase?: boolean;
-        requireLowercase?: boolean;
-        requireNumbers?: boolean;
-        requireSpecialChars?: boolean;
-    }) {
+    constructor(options: ValidatorOptions) {
         this.minLength = options.minLength || 8;
         this.maxLength = options.maxLength || 20;
         this.requireUppercase = options.requireUppercase !== false; // default to true
