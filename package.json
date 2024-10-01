@@ -1,12 +1,12 @@
 {
   "name": "password-validator-pro",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "A highly customizable password validator for JavaScript and TypeScript. Ensures password strength with support for custom validation rules.",
   "main": "donsoft/index.js",
   "types": "donsoft/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -28,6 +28,9 @@
   },
   "homepage": "https://github.com/donchi4all/password-validator-pro#readme",
   "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
     "typescript": "^5.6.2"
   }
 }
