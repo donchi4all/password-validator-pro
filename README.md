@@ -71,6 +71,57 @@ if (customResult.valid) {
 }
 ```
 
+### Adding Custom Rules for Breach Detection Rule
+The Breach Detection feature allows you to enhance password validation by checking whether a password has been compromised in a known data breach. This feature can leverage third-party APIs, such as HaveIBeenPwned, or a custom list of breached passwords.
+
+```typescript
+// Define a custom rule for disallowing spaces
+
+// Mock external breach detection function
+function checkPasswordBreach(password: string): boolean {
+    // This is a mock implementation. Replace with real API calls like HaveIBeenPwned or leave it as custom as this.
+    const breachedPasswords = ['Password123!', '123456789'];
+    return breachedPasswords.includes(password);
+}
+
+// Add a custom rule for breach detection
+const breachDetectionRule = {
+  code: 'PASSWORD_BREACHED',
+  message: 'This password has been compromised in a data breach.',
+  validate: (password: string) => {
+    return !(checkPasswordBreach(password));
+  },
+};
+
+// Add the breach detection rule
+validator.addCustomRule(breachDetectionRule);
+
+// Validate a password
+const passwordToTest = 'Password123!';
+
+const result = validator.validate(passwordToTest);
+
+if (result.valid) {
+  console.log('Password is valid!');
+} else {
+  console.log('Password is invalid:', result.errors);
+}
+
+```
+and this will be the output
+
+```json
+Password is invalid: [
+  {
+    status: 400,
+    code: 'PASSWORD_BREACHED',
+    message: 'This password has been compromised in a data breach.'
+  }
+]
+
+```
+
+
 ## Error Messages
 
 The validator returns an object with a `valid` property indicating whether the password is valid and an `errors` array containing the error messages. Here are the default error messages you may encounter:
