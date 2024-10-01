@@ -26,6 +26,10 @@
   "bugs": {
     "url": "https://github.com/donchi4all/password-validator-pro/issues"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/",
+    "access": "public"
+  },
   "homepage": "https://github.com/donchi4all/password-validator-pro#readme",
   "devDependencies": {
     "@types/jest": "^29.5.13",

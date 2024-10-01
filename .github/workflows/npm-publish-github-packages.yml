@@ -1,6 +1,5 @@
 name: Node.js Package
 
-# This workflow will run on every push to master and on release creation.
 on:
   push:
     branches:
@@ -12,22 +11,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
       - uses: actions/checkout@v4
-
-      # Set up Node.js environment (v20)
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://npm.pkg.github.com/ # Set the registry URL
 
-      # Install dependencies
       - run: npm ci
-
-      # Run tests
       - run: npm test
 
   publish-gpr:
-    # This job will run only when a release is created
     if: github.event_name == 'release' && github.event.action == 'created'
     needs: build
     runs-on: ubuntu-latest
@@ -35,19 +28,15 @@ jobs:
       contents: read
       packages: write
     steps:
-      # Checkout the repository again
       - uses: actions/checkout@v4
-
-      # Set up Node.js with the GitHub Packages registry
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com/
 
-      # Install dependencies again (if necessary)
       - run: npm ci
 
-      # Publish the package to GitHub Packages
-      - run: npm publish
+      # Publish the package
+      - run: npm publish --access public # Add --access public here
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
