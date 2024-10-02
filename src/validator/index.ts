@@ -7,6 +7,7 @@ class PasswordValidator {
     private requireLowercase: boolean;
     private requireNumbers: boolean;
     private requireSpecialChars: boolean;
+    private combineErrors: boolean;
     private customRules: { [key: string]: { validate: (password: string) => boolean; message: string } } = {};
     private errorMessages: ErrorMessages;
 
@@ -17,6 +18,7 @@ class PasswordValidator {
         this.requireLowercase = options.requireLowercase !== false; // default to true
         this.requireNumbers = options.requireNumbers !== false; // default to true
         this.requireSpecialChars = options.requireSpecialChars !== false; // default to true
+        this.combineErrors = options.combineErrors !== false; // default to true (combine errors)
         this.errorMessages = {
             PASSWORD_TOO_SHORT: (minLength) => `Password must be at least ${minLength} characters long.`,
             PASSWORD_TOO_LONG: (maxLength) => `Password must be at most ${maxLength} characters long.`,
@@ -35,7 +37,7 @@ class PasswordValidator {
     }
 
     validate(password: string): { valid: boolean; errors: ErrorInterface[] } {
-        const errors: ErrorInterface[] = [];
+        let errors: ErrorInterface[] = []; // Changed to 'let' to allow reassignment
         const status = 400; // HTTP status code for bad requests
         const errorCodes: string[] = []; // To collect error codes
         const errorMessages: string[] = []; // To collect error messages
@@ -82,13 +84,22 @@ class PasswordValidator {
 
         // Prepare final error object if there are errors
         if (errorCodes.length > 0) {
-            const concatenatedCodes = errorCodes.join(' | ');
-            const concatenatedMessages = errorMessages.join(', ');
-            errors.push({
-                status,
-                code: concatenatedCodes,
-                message: concatenatedMessages,
-            });
+            if (this.combineErrors) {
+                const concatenatedCodes = errorCodes.join(' | ');
+                const concatenatedMessages = errorMessages.join(', ').replace(/\.,/g, ','); // Remove "." before commas
+                errors.push({
+                    status,
+                    code: concatenatedCodes,
+                    message: concatenatedMessages,
+                });
+            } else {
+                // Show each error individually
+                errors = errorCodes.map((code, index) => ({
+                    status,
+                    code,
+                    message: errorMessages[index],
+                }));
+            }
         }
 
         return { valid: errors.length === 0, errors };

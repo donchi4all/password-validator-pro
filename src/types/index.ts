@@ -21,4 +21,5 @@ export interface ValidatorOptions {
     requireLowercase?: boolean;
     requireNumbers?: boolean;
     requireSpecialChars?: boolean;
+    combineErrors?: boolean;
 }

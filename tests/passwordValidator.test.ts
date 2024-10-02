@@ -11,6 +11,7 @@ describe('PasswordValidator', () => {
             requireLowercase: true,
             requireNumbers: true,
             requireSpecialChars: true,
+            combineErrors: true,
         });
     });
 
@@ -32,7 +33,7 @@ describe('PasswordValidator', () => {
         expect(result.errors).toContainEqual({
             status: 400,
             code: 'PASSWORD_TOO_LONG | NO_SPACES',
-            message: 'Password must be at most 20 characters long., Password must not contain spaces.'
+            message: 'Password must be at most 20 characters long, Password must not contain spaces.'
         });
     });
 
